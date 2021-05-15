@@ -35,7 +35,7 @@ def shop_clear(user_id):
     except:
         abort(404)
 
-@app.route('/user/<int:user_id>/shop/<str:item>/delete', methods=["POST"])
+@app.route('/user/<int:user_id>/shop/<string:item>/delete', methods=["POST"])
 @cross_origin()
 def shop_clear(user_id, item):
     try:
@@ -44,7 +44,7 @@ def shop_clear(user_id, item):
     except:
         abort(404)
 
-@app.route('/user/<int:user_id>/shop/<str:item>/increase/<int:amt>', methods=["POST"])
+@app.route('/user/<int:user_id>/shop/<string:item>/increase/<int:amt>', methods=["POST"])
 @cross_origin()
 def shop_clear(user_id, item, amt):
     try:
