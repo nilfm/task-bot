@@ -6,6 +6,7 @@ import datetime as dt
 import matplotlib.pyplot as plt
 from itertools import groupby
 
+
 def new(user_id, name):
     utils.create_user(user_id)
     path = f"data/{user_id}/workouts/{name}.json"
@@ -14,6 +15,7 @@ def new(user_id, name):
     utils.create_json_dict(path)
     return f"Workout {name} created successfully!"
 
+
 def remove(user_id, name):
     utils.create_user(user_id)
     path = f"data/{user_id}/workouts/{name}.json"
@@ -21,6 +23,7 @@ def remove(user_id, name):
         raise ValueError("Invalid command: this exercise doesn't exist.")
     os.remove(path)
     return f"Workout {name} removed successfully!"
+
 
 def add(user_id, to_add):
     utils.create_user(user_id)
@@ -43,6 +46,7 @@ def add(user_id, to_add):
     else:
         return f"Exercises {', '.join(wrong_names)} were not found"
 
+
 def stats(user_id, name, period=90):
     utils.create_user(user_id)
     path = f"data/{user_id}/workouts/{name}.json"
@@ -58,18 +62,18 @@ def stats(user_id, name, period=90):
         day = today + dt.timedelta(days=diff)
         day_iso = day.strftime("%Y/%m/%d")
         days.append(day.strftime("%d/%m/%Y"))
-        shown_days.append(day.strftime("%d %b") if diff%3 == 0 else "")
+        shown_days.append(day.strftime("%d %b") if diff % 3 == 0 else "")
         nums.append(data.get(day_iso, 0))
 
     binary = [1 if x != 0 else 0 for x in nums]
     streaks = [len(list(g)) for k, g in groupby(binary) if k == 1]
     max_num = max(nums)
     max_day = days[nums.index(max_num)]
-    avg = sum(nums)/period
-    yearly = int(avg*365)
+    avg = sum(nums) / period
+    yearly = int(avg * 365)
     workout_days = sum([x != 0 for x in nums])
     best_streak = 0 if len(streaks) == 0 else max(streaks)
-    curr_streak = 0 if len(streaks) == 0 else streaks[-1]  
+    curr_streak = 0 if len(streaks) == 0 else streaks[-1]
 
     msg = f"""
 *{name.title()} stats for the last {period} days*
@@ -88,7 +92,7 @@ def stats(user_id, name, period=90):
     plt.xticks(range(period), shown_days)
     plt.title(name.title())
     buf = BytesIO()
-    plt.savefig(buf, format="png", dpi=100, bbox_inches='tight')
+    plt.savefig(buf, format="png", dpi=100, bbox_inches="tight")
     buf.seek(0)
     plt.close()
     return buf, msg

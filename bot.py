@@ -74,8 +74,10 @@ def shop(update, context):
         else:
             raise ValueError("I couldn't understand you :(")
         context.bot.send_message(
-            chat_id=update.effective_chat.id, text=message, parse_mode=telegram.ParseMode.MARKDOWN
-        )            
+            chat_id=update.effective_chat.id,
+            text=message,
+            parse_mode=telegram.ParseMode.MARKDOWN,
+        )
     except ValueError as e:
         context.bot.send_message(chat_id=update.effective_chat.id, text=str(e))
 
@@ -116,20 +118,28 @@ def shopgroup(update, context):
         else:
             raise ValueError("I couldn't understand you :(")
         context.bot.send_message(
-            chat_id=update.effective_chat.id, text=message, parse_mode=telegram.ParseMode.MARKDOWN
-        )        
+            chat_id=update.effective_chat.id,
+            text=message,
+            parse_mode=telegram.ParseMode.MARKDOWN,
+        )
     except ValueError as e:
         context.bot.send_message(chat_id=update.effective_chat.id, text=str(e))
+
 
 def parse_add_calendar(args):
     if len(args) <= 1:
         raise ValueError()
     today = dt.datetime.now()
     parsed_dt, (event_ret, *_) = dtparser.parse(
-        timestr=" ".join(args), default=today, ignoretz=True, dayfirst=True, fuzzy_with_tokens=True
+        timestr=" ".join(args),
+        default=today,
+        ignoretz=True,
+        dayfirst=True,
+        fuzzy_with_tokens=True,
     )
     dt_ret = parsed_dt.strftime("%Y/%m/%d")
     return event_ret.strip(), dt_ret
+
 
 def calendar(update, context):
     user_id = update.message.chat.id
@@ -148,8 +158,10 @@ def calendar(update, context):
         else:
             raise ValueError("I couldn't understand you :(")
         context.bot.send_message(
-            chat_id=update.effective_chat.id, text=message, parse_mode=telegram.ParseMode.MARKDOWN
-        )    
+            chat_id=update.effective_chat.id,
+            text=message,
+            parse_mode=telegram.ParseMode.MARKDOWN,
+        )
     except ValueError as e:
         context.bot.send_message(chat_id=update.effective_chat.id, text=str(e))
 
@@ -184,7 +196,9 @@ def link(update, context):
         else:
             raise ValueError("I couldn't understand you :(")
         context.bot.send_message(
-            chat_id=update.effective_chat.id, text=message, parse_mode=telegram.ParseMode.MARKDOWN
+            chat_id=update.effective_chat.id,
+            text=message,
+            parse_mode=telegram.ParseMode.MARKDOWN,
         )
     except ValueError as e:
         context.bot.send_message(chat_id=update.effective_chat.id, text=str(e))
@@ -193,7 +207,7 @@ def link(update, context):
 def parse_add_workout(args):
     if len(args) == 0:
         raise ValueError("Invalid command: nothing to add.")
-    if len(args)%2 != 0:
+    if len(args) % 2 != 0:
         raise ValueError("Invalid command: odd length of argument list.")
     items = defaultdict(int)
 
@@ -204,7 +218,7 @@ def parse_add_workout(args):
         if num == 0:
             raise ValueError(f"Invalid command: can't buy 0 {name}")
         items[name] += num
-    
+
     return items
 
 
@@ -228,10 +242,13 @@ def workout(update, context):
         else:
             raise ValueError("I couldn't understand you :(")
         context.bot.send_message(
-            chat_id=update.effective_chat.id, text=message, parse_mode=telegram.ParseMode.MARKDOWN
+            chat_id=update.effective_chat.id,
+            text=message,
+            parse_mode=telegram.ParseMode.MARKDOWN,
         )
     except ValueError as e:
         context.bot.send_message(chat_id=update.effective_chat.id, text=str(e))
+
 
 # TODO: Edit distance for the remove/edit options
 # https://pypi.org/project/editdistance/0.3.1/
@@ -241,10 +258,10 @@ TOKEN = open("token.txt").read().strip()
 updater = Updater(token=TOKEN, use_context=True)
 dispatcher = updater.dispatcher
 
-dispatcher.add_handler(CommandHandler('start', start))
-dispatcher.add_handler(CommandHandler('id', get_id))
-dispatcher.add_handler(CommandHandler('shop', shop, pass_args=True))
-dispatcher.add_handler(CommandHandler('calendar', calendar, pass_args=True))
+dispatcher.add_handler(CommandHandler("start", start))
+dispatcher.add_handler(CommandHandler("id", get_id))
+dispatcher.add_handler(CommandHandler("shop", shop, pass_args=True))
+dispatcher.add_handler(CommandHandler("calendar", calendar, pass_args=True))
 dispatcher.add_handler(CommandHandler("shopgroup", shopgroup, pass_args=True))
 dispatcher.add_handler(CommandHandler("link", link, pass_args=True))
 dispatcher.add_handler(CommandHandler("workout", workout, pass_args=True))
