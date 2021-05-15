@@ -19,7 +19,6 @@ def get_id(update, context):
     user_id = update.message.chat.id
     context.bot.send_message(chat_id=update.effective_chat.id, text=f"{user_id}")
 
-
 def parse_add_shopping_list(args):
     if len(args) == 0:
         raise ValueError("Invalid command: nothing to buy.")
@@ -87,9 +86,9 @@ def shopgroup(update, context):
     args = context.args
 
     try:
-        if len(args) == 0 or (len(args) == 1 and args[0] == "list"):
+        if len(args) == 0 or (len(args) == 1 and args[0] in ["list", "show"]):
             message = shopping.show_shopgroups_list(user_id)
-        elif len(args) == 1 or (len(args) == 2 and args[1] == "list"):
+        elif len(args) == 1 or (len(args) == 2 and args[1] in ["list", "show"]):
             message = shopping.show_list(user_id, args[0])
         elif args[0] == "create":
             if len(args) != 3:
@@ -182,7 +181,7 @@ def link(update, context):
     args = context.args
 
     try:
-        if len(args) == 0 or (len(args) == 1 and args[0] == "list"):
+        if len(args) == 0 or (len(args) == 1 and args[0] in ["list", "show"]):
             message = links.show_list(user_id)
         elif args[0] == "add":
             name, url = parse_add_link(args[1:])
@@ -239,6 +238,8 @@ def workout(update, context):
         elif len(args) == 2 and args[0] == "show":
             plot, message = workouts.stats(user_id, args[1])
             context.bot.send_photo(chat_id=update.effective_chat.id, photo=plot)
+        elif len(args) == 1 and args[0] == "clear":
+            message = workouts.clear(user_id)
         else:
             raise ValueError("I couldn't understand you :(")
         context.bot.send_message(
@@ -249,9 +250,48 @@ def workout(update, context):
     except ValueError as e:
         context.bot.send_message(chat_id=update.effective_chat.id, text=str(e))
 
+def my_help(update, context):
+    user_id = update.message.chat.first_name
+    txt = """ 
+```
+*List of commands:*
+/start
+    - The bot says Hello!
+/help 
+    - Display this information
+/id 
+    - Get your id to use it on the website
+/shop
+    [show | list]
+    add [quantity1 (default:1)] item1 [quantity2 (default:1)] item2 ... 
+    remove item1 item2 ... 
+    clear
+/shopgroup
+    create <groupname> <password>
+    join <groupname> <password>
+    leave <groupname>
+    <groupname> add [quantity1 (default:1)] item1 [quantity2 (default:1)] item2 ... 
+    <groupname> remove item1 item2 ... 
+    <groupname> clear
+/calendar
+    [show]
+    add <event> <date>
+    remove <event>
+    clear
+/link
+    [show | list]
+    add <name> <url>
+    remove <name>
+    clear
+/workout
+    new <activity_name>
+    add <amount1> <activity_name1> [<amount2> <activity_name2> ...]
+    remove <activity_name>
+    clear
+```
+"""
+    context.bot.send_message(chat_id=update.effective_chat.id, text=txt)
 
-# TODO: Edit distance for the remove/edit options
-# https://pypi.org/project/editdistance/0.3.1/
 
 TOKEN = open("token.txt").read().strip()
 
@@ -261,9 +301,10 @@ dispatcher = updater.dispatcher
 dispatcher.add_handler(CommandHandler("start", start))
 dispatcher.add_handler(CommandHandler("id", get_id))
 dispatcher.add_handler(CommandHandler("shop", shop, pass_args=True))
-dispatcher.add_handler(CommandHandler("calendar", calendar, pass_args=True))
 dispatcher.add_handler(CommandHandler("shopgroup", shopgroup, pass_args=True))
+dispatcher.add_handler(CommandHandler("calendar", calendar, pass_args=True))
 dispatcher.add_handler(CommandHandler("link", link, pass_args=True))
 dispatcher.add_handler(CommandHandler("workout", workout, pass_args=True))
+dispatcher.add_handler(CommandHandler("help", my_help))
 
 updater.start_polling()
