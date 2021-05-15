@@ -37,7 +37,7 @@ def shop_clear(user_id):
 
 @app.route('/user/<int:user_id>/shop/<string:item>/delete', methods=["POST"])
 @cross_origin()
-def shop_clear(user_id, item):
+def shop_delete(user_id, item):
     try:
         shopping.remove(user_id, {item})
         return "OK"
@@ -46,7 +46,7 @@ def shop_clear(user_id, item):
 
 @app.route('/user/<int:user_id>/shop/<string:item>/increase/<int:amt>', methods=["POST"])
 @cross_origin()
-def shop_clear(user_id, item, amt):
+def shop_increase(user_id, item, amt):
     try:
         shopping.add(user_id, {item: amt})
         return "OK"
