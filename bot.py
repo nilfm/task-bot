@@ -1,5 +1,5 @@
 from collections import defaultdict
-from telegram.ext import Updater, CommandHandler
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import telegram
 import validators
 import shopping
@@ -8,6 +8,8 @@ import datetime as dt
 import dateutil.parser as dtparser
 import links
 import workouts
+import PIL.Image as Image
+import io
 
 
 def start(update, context):
@@ -250,6 +252,12 @@ def workout(update, context):
         context.bot.send_message(chat_id=update.effective_chat.id, text=str(e))
 
 
+def handle_photo(update, context):
+    file = update.message.photo[-1].get_file()
+    bytearray = file.download_as_bytearray()
+    image = Image.open(io.BytesIO(bytearray))
+    image.show()
+
 # TODO: Edit distance for the remove/edit options
 # https://pypi.org/project/editdistance/0.3.1/
 
@@ -265,5 +273,6 @@ dispatcher.add_handler(CommandHandler("calendar", calendar, pass_args=True))
 dispatcher.add_handler(CommandHandler("shopgroup", shopgroup, pass_args=True))
 dispatcher.add_handler(CommandHandler("link", link, pass_args=True))
 dispatcher.add_handler(CommandHandler("workout", workout, pass_args=True))
+dispatcher.add_handler(MessageHandler(filters=Filters.photo, callback=handle_photo))
 
 updater.start_polling()
