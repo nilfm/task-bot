@@ -24,6 +24,13 @@ def remove(user_id, name):
     os.remove(path)
     return f"Workout {name} removed successfully!"
 
+def clear(user_id):
+    utils.create_user(user_id)
+    for name in os.listdir(f"data/{user_id}/workouts/"):
+        path = f"data/{user_id}/workouts/{name}"
+        with open(path, "w") as f:
+            f.write("{}")
+    return f"All workouts cleared successfully!"
 
 def add(user_id, to_add):
     utils.create_user(user_id)
