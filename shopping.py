@@ -36,7 +36,7 @@ def remove(user_id, to_remove):
         json.dump(current, f, indent=4)
     return show_list(user_id) 
 
-def clean(user_id):
+def clear(user_id):
     utils.create_user(user_id)
     path = f"data/{user_id}/shopping.json"
     with open(path, "w") as f:

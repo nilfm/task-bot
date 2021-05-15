@@ -56,8 +56,8 @@ def shop(update, context):
         elif args[0] == "remove":
             to_remove = parse_remove_shopping_list(args)
             message = shopping.remove(user_id, to_remove)
-        elif len(args) == 1 and args[0] == "clean":
-            message = shopping.clean(user_id)
+        elif len(args) == 1 and args[0] == "clear":
+            message = shopping.clear(user_id)
         else:
             raise ValueError()
         context.bot.send_message(chat_id=update.effective_chat.id, text=message)
