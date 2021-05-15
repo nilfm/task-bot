@@ -189,18 +189,11 @@ TOKEN = open("token.txt").read().strip()
 updater = Updater(token=TOKEN, use_context=True)
 dispatcher = updater.dispatcher
 
-<<<<<<< HEAD
 dispatcher.add_handler(CommandHandler('start', start))
 dispatcher.add_handler(CommandHandler('id', get_id))
 dispatcher.add_handler(CommandHandler('shop', shop, pass_args=True))
 dispatcher.add_handler(CommandHandler('calendar', calendar, pass_args=True))
-dispatcher.add_handler(CommandHandler('shopgroup', shopgroup, pass_args=True))
-=======
-dispatcher.add_handler(CommandHandler("start", start))
-dispatcher.add_handler(CommandHandler("id", get_id))
-dispatcher.add_handler(CommandHandler("shop", shop, pass_args=True))
 dispatcher.add_handler(CommandHandler("shopgroup", shopgroup, pass_args=True))
 dispatcher.add_handler(CommandHandler("link", link, pass_args=True))
->>>>>>> a2d415a9c1cc39f44abab205755ff29fb3f77b5b
 
 updater.start_polling()
