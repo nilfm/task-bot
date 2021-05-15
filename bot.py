@@ -118,7 +118,7 @@ def parse_add_calendar(args):
         timestr=" ".join(args), default=today, ignoretz=True, dayfirst=True, fuzzy_with_tokens=True
     )
     dt_ret = parsed_dt.strftime("%Y/%m/%d")
-    return event_ret, dt_ret
+    return event_ret.strip(), dt_ret
 
 def calendar(update, context):
     user_id = update.message.chat.id
@@ -131,14 +131,14 @@ def calendar(update, context):
             event, date = parse_add_calendar(args[1:])
             message = my_calendar.add(user_id, event, date)
         elif args[0] == "remove":
-            pass
+            message = my_calendar.remove(user_id, " ".join(args[1:]))
         elif len(args) == 1 and args[0] == "clear":
             message = my_calendar.clear(user_id)
         else:
-            raise ValueError()
+            raise ValueError("Calendar error")
         context.bot.send_message(chat_id=update.effective_chat.id, text=message)
-    except ValueError:
-        context.bot.send_message(chat_id=update.effective_chat.id, text="I couldn't understand you :(")
+    except ValueError as e:
+        context.bot.send_message(chat_id=update.effective_chat.id, text=str(e))
 
 
 # TODO: Edit distance for the remove/edit options 
