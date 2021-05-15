@@ -4,19 +4,16 @@ import validators
 import shopping
 import links
 
+
 def start(update, context):
     name = update.message.chat.first_name
-    context.bot.send_message(
-        chat_id=update.effective_chat.id, 
-        text=f"Hi {name}!"
-    )
+    context.bot.send_message(chat_id=update.effective_chat.id, text=f"Hi {name}!")
+
 
 def get_id(update, context):
     user_id = update.message.chat.id
-    context.bot.send_message(
-        chat_id=update.effective_chat.id, 
-        text=f"{user_id}"
-    )
+    context.bot.send_message(chat_id=update.effective_chat.id, text=f"{user_id}")
+
 
 def parse_add_shopping_list(args):
     if len(args) == 0:
@@ -41,6 +38,7 @@ def parse_add_shopping_list(args):
             prev_num = 1
     return items
 
+
 def parse_remove_shopping_list(args):
     if len(args) == 0:
         raise ValueError("Invalid command: nothing to remove.")
@@ -51,6 +49,7 @@ def parse_remove_shopping_list(args):
         else:
             items.add(word)
     return items
+
 
 def shop(update, context):
     user_id = update.message.chat.id
@@ -73,6 +72,7 @@ def shop(update, context):
     except ValueError as e:
         context.bot.send_message(chat_id=update.effective_chat.id, text=str(e))
 
+
 def shopgroup(update, context):
     user_id = update.message.chat.id
     args = context.args
@@ -84,11 +84,15 @@ def shopgroup(update, context):
             message = shopping.show_list(user_id, args[0])
         elif args[0] == "create":
             if len(args) != 3:
-                raise ValueError("Invalid command: try /shopgroup create <groupname> <password>")
+                raise ValueError(
+                    "Invalid command: try /shopgroup create <groupname> <password>"
+                )
             message = shopping.create_shopgroup(user_id, args[1], args[2])
         elif args[0] == "join":
             if len(args) != 3:
-                raise ValueError("Invalid command: try /shopgroup join <groupname> <password>")
+                raise ValueError(
+                    "Invalid command: try /shopgroup join <groupname> <password>"
+                )
             message = shopping.join_shopgroup(user_id, args[1], args[2])
         elif args[0] == "leave":
             if len(args) != 2:
@@ -108,6 +112,7 @@ def shopgroup(update, context):
     except ValueError as e:
         context.bot.send_message(chat_id=update.effective_chat.id, text=str(e))
 
+
 def parse_add_link(args):
     if len(args) != 2:
         raise ValueError("Invalid command: try /link add <name> <url>")
@@ -117,6 +122,7 @@ def parse_add_link(args):
     if not validators.url(url):
         raise ValueError(f"Invalid command: {url} is not a valid url")
     return name, url
+
 
 def link(update, context):
     user_id = update.message.chat.id
@@ -140,18 +146,19 @@ def link(update, context):
     except ValueError as e:
         context.bot.send_message(chat_id=update.effective_chat.id, text=str(e))
 
-# TODO: Edit distance for the remove/edit options 
+
+# TODO: Edit distance for the remove/edit options
 # https://pypi.org/project/editdistance/0.3.1/
 
-TOKEN = open('token.txt').read().strip()
+TOKEN = open("token.txt").read().strip()
 
 updater = Updater(token=TOKEN, use_context=True)
 dispatcher = updater.dispatcher
 
-dispatcher.add_handler(CommandHandler('start', start))
-dispatcher.add_handler(CommandHandler('id', get_id))
-dispatcher.add_handler(CommandHandler('shop', shop, pass_args=True))
-dispatcher.add_handler(CommandHandler('shopgroup', shopgroup, pass_args=True))
-dispatcher.add_handler(CommandHandler('link', link, pass_args=True))
+dispatcher.add_handler(CommandHandler("start", start))
+dispatcher.add_handler(CommandHandler("id", get_id))
+dispatcher.add_handler(CommandHandler("shop", shop, pass_args=True))
+dispatcher.add_handler(CommandHandler("shopgroup", shopgroup, pass_args=True))
+dispatcher.add_handler(CommandHandler("link", link, pass_args=True))
 
 updater.start_polling()

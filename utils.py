@@ -3,18 +3,22 @@ import json
 import hashlib
 from sys import path_hooks, path_importer_cache
 
+
 def create_json_dict(path):
     if not os.path.isfile(path):
         with open(path, "w") as f:
             f.write("{}")
+
 
 def create_json_list(path):
     if not os.path.isfile(path):
         with open(path, "w") as f:
             f.write("[]")
 
+
 def hash(text):
-    return hashlib.sha256(text.encode('utf-8')).hexdigest()
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
 
 def create_user(user_id):
     path = f"data/{user_id}"
@@ -28,6 +32,7 @@ def create_user(user_id):
     links_path = f"{path}/links.json"
     create_json_dict(links_path)
 
+
 def update_shopgroup_list(group_id, password):
     path_dir = "data"
     path = f"{path_dir}/shopgroup_credentials.json"
@@ -38,6 +43,7 @@ def update_shopgroup_list(group_id, password):
     credentials[group_id] = hash(password)
     with open(path, "w") as f:
         json.dump(credentials, f, indent=4)
+
 
 # Raises exception if group doesn't exist or if password is incorrect
 def authenticate_shopgroup(group_id, password):
@@ -52,6 +58,7 @@ def authenticate_shopgroup(group_id, password):
     if credentials[group_id] != hash(password):
         raise ValueError("Invalid credentials: wrong shopgroup name or password.")
 
+
 # Raises exception if user doesn't belong to group
 def verify_shopgroup(user_id, group_id):
     path = f"data/{user_id}/shopgroups.json"
@@ -59,6 +66,7 @@ def verify_shopgroup(user_id, group_id):
         current = json.load(f)
     if group_id not in current:
         raise ValueError("Invalid command: you are not part of this shopgroup.")
+
 
 def add_user_to_shopgroup(user_id, group_id):
     path = f"data/{user_id}/shopgroups.json"
@@ -77,6 +85,7 @@ def add_user_to_shopgroup(user_id, group_id):
 
     with open(path_info, "w") as f:
         json.dump(info, f, indent=4)
+
 
 def remove_user_from_shopgroup(user_id, group_id):
     path = f"data/{user_id}/shopgroups.json"
@@ -99,6 +108,7 @@ def remove_user_from_shopgroup(user_id, group_id):
 
     if len(info) == 0:
         delete_shopgroup(group_id)
+
 
 def delete_shopgroup(group_id):
     path_shopgroup = f"data/shopgroups/{group_id}.json"
