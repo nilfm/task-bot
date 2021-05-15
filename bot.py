@@ -76,8 +76,8 @@ def shopgroup(update, context):
     args = context.args
 
     try:
-        if len(args) == 0:
-            raise ValueError("Invalid command: no shopgroup specified.")
+        if len(args) == 0 or (len(args) == 1 and args[0] == "list"):
+            message = shopping.show_shopgroups_list(user_id)
         elif len(args) == 1 or (len(args) == 2 and args[1] == "list"):
             message = shopping.show_list(user_id, args[0])
         elif args[0] == "create":

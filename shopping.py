@@ -67,11 +67,15 @@ def clear(user_id, group_id=None):
 def create_shopgroup(user_id, group_id, password):
     utils.create_user(user_id)
     path_dir = "data/shopgroups"
+    path_dir_info = "data/shopgroup_info"
     path = f"{path_dir}/{group_id}.json"
+    path_info = f"{path_dir_info}/{group_id}.json"
     if os.path.isfile(path):
         raise ValueError("Invalid command: a shopgroup with this name already exists.")
     os.makedirs(path_dir, exist_ok=True)
+    os.makedirs(path_dir_info, exist_ok=True)
     utils.create_json_dict(path)
+    utils.create_json_list(path_info)
     utils.update_shopgroup_list(group_id, password)
     utils.add_user_to_shopgroup(user_id, group_id)
     return f"Shopgroup {group_id} was successfully created!"
@@ -83,5 +87,17 @@ def join_shopgroup(user_id, group_id, password):
     return f"Joined shopgroup {group_id} successfully!"
 
 def leave_shopgroup(user_id, group_id):
+    utils.create_user(user_id)
     utils.remove_user_from_shopgroup(user_id, group_id)
     return f"Left shopgroup {group_id} successfully!"
+
+def show_shopgroups_list(user_id):
+    utils.create_user(user_id)
+    path = f"data/{user_id}/shopgroups.json"
+    with open(path, "r") as f:
+        groups = json.load(f)
+    lines = ["Your shopgroups:"] + [
+        f"* {group}"
+        for group in groups
+    ]
+    return "\n".join(lines)
