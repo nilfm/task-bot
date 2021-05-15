@@ -1,23 +1,22 @@
 from collections import defaultdict
 from telegram.ext import Updater, CommandHandler
+import validators
 import shopping
 import my_calendar
 import datetime as dt
 import dateutil.parser as dtparser
+import links
+
 
 def start(update, context):
     name = update.message.chat.first_name
-    context.bot.send_message(
-        chat_id=update.effective_chat.id, 
-        text=f"Hi {name}!"
-    )
+    context.bot.send_message(chat_id=update.effective_chat.id, text=f"Hi {name}!")
+
 
 def get_id(update, context):
     user_id = update.message.chat.id
-    context.bot.send_message(
-        chat_id=update.effective_chat.id, 
-        text=f"{user_id}"
-    )
+    context.bot.send_message(chat_id=update.effective_chat.id, text=f"{user_id}")
+
 
 def parse_add_shopping_list(args):
     if len(args) == 0:
@@ -42,6 +41,7 @@ def parse_add_shopping_list(args):
             prev_num = 1
     return items
 
+
 def parse_remove_shopping_list(args):
     if len(args) == 0:
         raise ValueError("Invalid command: nothing to remove.")
@@ -52,6 +52,7 @@ def parse_remove_shopping_list(args):
         else:
             items.add(word)
     return items
+
 
 def shop(update, context):
     user_id = update.message.chat.id
@@ -74,22 +75,27 @@ def shop(update, context):
     except ValueError as e:
         context.bot.send_message(chat_id=update.effective_chat.id, text=str(e))
 
+
 def shopgroup(update, context):
     user_id = update.message.chat.id
     args = context.args
 
     try:
-        if len(args) == 0:
-            raise ValueError("Invalid command: no shopgroup specified.")
+        if len(args) == 0 or (len(args) == 1 and args[0] == "list"):
+            message = shopping.show_shopgroups_list(user_id)
         elif len(args) == 1 or (len(args) == 2 and args[1] == "list"):
             message = shopping.show_list(user_id, args[0])
         elif args[0] == "create":
             if len(args) != 3:
-                raise ValueError("Invalid command: try /shopgroup create <groupname> <password>")
+                raise ValueError(
+                    "Invalid command: try /shopgroup create <groupname> <password>"
+                )
             message = shopping.create_shopgroup(user_id, args[1], args[2])
         elif args[0] == "join":
             if len(args) != 3:
-                raise ValueError("Invalid command: try /shopgroup join <groupname> <password>")
+                raise ValueError(
+                    "Invalid command: try /shopgroup join <groupname> <password>"
+                )
             message = shopping.join_shopgroup(user_id, args[1], args[2])
         elif args[0] == "leave":
             if len(args) != 2:
@@ -141,18 +147,60 @@ def calendar(update, context):
         context.bot.send_message(chat_id=update.effective_chat.id, text=str(e))
 
 
-# TODO: Edit distance for the remove/edit options 
+def parse_add_link(args):
+    if len(args) != 2:
+        raise ValueError("Invalid command: try /link add <name> <url>")
+    name, url = args
+    if validators.url(name):
+        raise ValueError("Invalid command: try /link add <name> <url>")
+    if not validators.url(url):
+        raise ValueError(f"Invalid command: {url} is not a valid url")
+    return name, url
+
+
+def link(update, context):
+    user_id = update.message.chat.id
+    args = context.args
+
+    try:
+        if len(args) == 0 or (len(args) == 1 and args[0] == "list"):
+            message = links.show_list(user_id)
+        elif args[0] == "add":
+            name, url = parse_add_link(args[1:])
+            message = links.add(user_id, name, url)
+        elif len(args) == 2 and args[0] == "remove":
+            message = links.remove(user_id, args[1])
+        elif len(args) == 1 and args[0] == "clear":
+            message = links.clear(user_id)
+        elif len(args) == 1:
+            message = links.get(user_id, args[0])
+        else:
+            raise ValueError("I couldn't understand you :(")
+        context.bot.send_message(chat_id=update.effective_chat.id, text=message)
+    except ValueError as e:
+        context.bot.send_message(chat_id=update.effective_chat.id, text=str(e))
+
+
+# TODO: Edit distance for the remove/edit options
 # https://pypi.org/project/editdistance/0.3.1/
 
-TOKEN = open('token.txt').read().strip()
+TOKEN = open("token.txt").read().strip()
 
 updater = Updater(token=TOKEN, use_context=True)
 dispatcher = updater.dispatcher
 
+<<<<<<< HEAD
 dispatcher.add_handler(CommandHandler('start', start))
 dispatcher.add_handler(CommandHandler('id', get_id))
 dispatcher.add_handler(CommandHandler('shop', shop, pass_args=True))
 dispatcher.add_handler(CommandHandler('calendar', calendar, pass_args=True))
 dispatcher.add_handler(CommandHandler('shopgroup', shopgroup, pass_args=True))
+=======
+dispatcher.add_handler(CommandHandler("start", start))
+dispatcher.add_handler(CommandHandler("id", get_id))
+dispatcher.add_handler(CommandHandler("shop", shop, pass_args=True))
+dispatcher.add_handler(CommandHandler("shopgroup", shopgroup, pass_args=True))
+dispatcher.add_handler(CommandHandler("link", link, pass_args=True))
+>>>>>>> a2d415a9c1cc39f44abab205755ff29fb3f77b5b
 
 updater.start_polling()
