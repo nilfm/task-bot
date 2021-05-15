@@ -15,8 +15,8 @@ def show_list(user_id, group_id=None):
         current = json.load(f)
     if len(current) == 0:
         return "Your shopping list is empty."
-    lines = ["Your shopping list:"] + [
-        f"* {name}: {amt}" for name, amt in current.items()
+    lines = ["*Your shopping list:*"] + [
+        f"\\* {name}: {amt}" for name, amt in current.items()
     ]
     return "\n".join(lines)
 
@@ -103,5 +103,5 @@ def show_shopgroups_list(user_id):
     path = f"data/{user_id}/shopgroups.json"
     with open(path, "r") as f:
         groups = json.load(f)
-    lines = ["Your shopgroups:"] + [f"* {group}" for group in groups]
+    lines = ["*Your shopgroups:*"] + [f"\\* {group}" for group in groups]
     return "\n".join(lines)

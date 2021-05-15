@@ -23,6 +23,8 @@ def hash(text):
 def create_user(user_id):
     path = f"data/{user_id}"
     os.makedirs(path, exist_ok=True)
+    workout_path = f"{path}/workouts"
+    os.makedirs(workout_path, exist_ok=True)
     shopping_path = f"{path}/shopping.json"
     create_json_dict(shopping_path)
     calendar_path = f"{path}/calendar.json"

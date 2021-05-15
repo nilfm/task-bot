@@ -1,11 +1,13 @@
 from collections import defaultdict
 from telegram.ext import Updater, CommandHandler
+import telegram
 import validators
 import shopping
 import my_calendar
 import datetime as dt
 import dateutil.parser as dtparser
 import links
+import workouts
 
 
 def start(update, context):
@@ -71,7 +73,9 @@ def shop(update, context):
             message = shopping.clear(user_id)
         else:
             raise ValueError("I couldn't understand you :(")
-        context.bot.send_message(chat_id=update.effective_chat.id, text=message)
+        context.bot.send_message(
+            chat_id=update.effective_chat.id, text=message, parse_mode=telegram.ParseMode.MARKDOWN
+        )            
     except ValueError as e:
         context.bot.send_message(chat_id=update.effective_chat.id, text=str(e))
 
@@ -111,11 +115,12 @@ def shopgroup(update, context):
             message = shopping.clear(user_id, args[0])
         else:
             raise ValueError("I couldn't understand you :(")
-        context.bot.send_message(chat_id=update.effective_chat.id, text=message)
+        context.bot.send_message(
+            chat_id=update.effective_chat.id, text=message, parse_mode=telegram.ParseMode.MARKDOWN
+        )        
     except ValueError as e:
         context.bot.send_message(chat_id=update.effective_chat.id, text=str(e))
 
-# TODO: implement the calendar option
 def parse_add_calendar(args):
     if len(args) <= 1:
         raise ValueError()
@@ -141,8 +146,10 @@ def calendar(update, context):
         elif len(args) == 1 and args[0] == "clear":
             message = my_calendar.clear(user_id)
         else:
-            raise ValueError("Calendar error")
-        context.bot.send_message(chat_id=update.effective_chat.id, text=message)
+            raise ValueError("I couldn't understand you :(")
+        context.bot.send_message(
+            chat_id=update.effective_chat.id, text=message, parse_mode=telegram.ParseMode.MARKDOWN
+        )    
     except ValueError as e:
         context.bot.send_message(chat_id=update.effective_chat.id, text=str(e))
 
@@ -176,10 +183,55 @@ def link(update, context):
             message = links.get(user_id, args[0])
         else:
             raise ValueError("I couldn't understand you :(")
-        context.bot.send_message(chat_id=update.effective_chat.id, text=message)
+        context.bot.send_message(
+            chat_id=update.effective_chat.id, text=message, parse_mode=telegram.ParseMode.MARKDOWN
+        )
     except ValueError as e:
         context.bot.send_message(chat_id=update.effective_chat.id, text=str(e))
 
+
+def parse_add_workout(args):
+    if len(args) == 0:
+        raise ValueError("Invalid command: nothing to add.")
+    if len(args)%2 != 0:
+        raise ValueError("Invalid command: odd length of argument list.")
+    items = defaultdict(int)
+
+    for num, name in zip(args[::2], args[1::2]):
+        if not num.isdigit():
+            raise ValueError(f"Invalid command: {num} is not a number")
+        num = int(num)
+        if num == 0:
+            raise ValueError(f"Invalid command: can't buy 0 {name}")
+        items[name] += num
+    
+    return items
+
+
+def workout(update, context):
+    user_id = update.message.chat.id
+    args = context.args
+
+    try:
+        if len(args) == 0:
+            raise ValueError("Invalid command: try /help")
+        elif len(args) == 2 and args[0] == "new":
+            message = workouts.new(user_id, args[1])
+        elif len(args) == 2 and args[0] == "remove":
+            message = workouts.remove(user_id, args[1])
+        elif args[0] == "add":
+            to_add = parse_add_workout(args[1:])
+            message = workouts.add(user_id, to_add)
+        elif len(args) == 2 and args[0] == "show":
+            plot, message = workouts.stats(user_id, args[1])
+            context.bot.send_photo(chat_id=update.effective_chat.id, photo=plot)
+        else:
+            raise ValueError("I couldn't understand you :(")
+        context.bot.send_message(
+            chat_id=update.effective_chat.id, text=message, parse_mode=telegram.ParseMode.MARKDOWN
+        )
+    except ValueError as e:
+        context.bot.send_message(chat_id=update.effective_chat.id, text=str(e))
 
 # TODO: Edit distance for the remove/edit options
 # https://pypi.org/project/editdistance/0.3.1/
@@ -195,5 +247,6 @@ dispatcher.add_handler(CommandHandler('shop', shop, pass_args=True))
 dispatcher.add_handler(CommandHandler('calendar', calendar, pass_args=True))
 dispatcher.add_handler(CommandHandler("shopgroup", shopgroup, pass_args=True))
 dispatcher.add_handler(CommandHandler("link", link, pass_args=True))
+dispatcher.add_handler(CommandHandler("workout", workout, pass_args=True))
 
 updater.start_polling()

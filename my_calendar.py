@@ -22,8 +22,8 @@ def show_calendar(user_id):
     if len(filtered) == 0:
         return "You have no events in your calendar."
     max_len = max([len(name) for name in filtered])
-    lines = ["Future events:"] + [
-        f"* {name.ljust(max_len)}  -  {show_date(date)}"
+    lines = ["*Future events:*"] + [
+        f"\\* {name.ljust(max_len)}  -  {show_date(date)}"
         for name, date in sorted(filtered.items(), key=lambda x: x[1])
     ]
     return "\n".join(lines)
