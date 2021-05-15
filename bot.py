@@ -1,6 +1,9 @@
 from collections import defaultdict
 from telegram.ext import Updater, CommandHandler
 import shopping
+import my_calendar
+import datetime as dt
+import dateutil.parser as dtparser
 
 def start(update, context):
     name = update.message.chat.first_name
@@ -48,7 +51,7 @@ def shop(update, context):
     args = context.args
 
     try:
-        if len(args) == 0 or (len(args) == 1 and args[0] == "list"):
+        if len(args) == 0 or (len(args) == 1 and args[0] in ["list", "show"]):
             message = shopping.show_list(user_id)
         elif args[0] == "add":
             to_buy = parse_add_shopping_list(args)
@@ -58,6 +61,37 @@ def shop(update, context):
             message = shopping.remove(user_id, to_remove)
         elif len(args) == 1 and args[0] == "clear":
             message = shopping.clear(user_id)
+        else:
+            raise ValueError()
+        context.bot.send_message(chat_id=update.effective_chat.id, text=message)
+    except ValueError:
+        context.bot.send_message(chat_id=update.effective_chat.id, text="I couldn't understand you :(")
+
+# TODO: implement the calendar option
+def parse_add_calendar(args):
+    if len(args) <= 1:
+        raise ValueError()
+    today = dt.datetime.now()
+    parsed_dt, (event_ret, *_) = dtparser.parse(
+        timestr=" ".join(args), default=today, ignoretz=True, dayfirst=True, fuzzy_with_tokens=True
+    )
+    dt_ret = parsed_dt.strftime("%Y/%m/%d")
+    return event_ret, dt_ret
+
+def calendar(update, context):
+    user_id = update.message.chat.id
+    args = context.args
+
+    try:
+        if len(args) == 0 or (len(args) == 1 and args[0] == "show"):
+            message = my_calendar.show_calendar(user_id)
+        elif args[0] == "add":
+            event, date = parse_add_calendar(args[1:])
+            message = my_calendar.add(user_id, event, date)
+        elif args[0] == "remove":
+            pass
+        elif len(args) == 1 and args[0] == "clear":
+            message = my_calendar.clear(user_id)
         else:
             raise ValueError()
         context.bot.send_message(chat_id=update.effective_chat.id, text=message)
@@ -75,5 +109,7 @@ dispatcher = updater.dispatcher
 
 dispatcher.add_handler(CommandHandler('start', start))
 dispatcher.add_handler(CommandHandler('shop', shop, pass_args=True))
+dispatcher.add_handler(CommandHandler('calendar', calendar, pass_args=True))
+
 
 updater.start_polling()
