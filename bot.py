@@ -2,6 +2,9 @@ from collections import defaultdict
 from telegram.ext import Updater, CommandHandler
 import validators
 import shopping
+import my_calendar
+import datetime as dt
+import dateutil.parser as dtparser
 import links
 
 
@@ -56,7 +59,7 @@ def shop(update, context):
     args = context.args
 
     try:
-        if len(args) == 0 or (len(args) == 1 and args[0] == "list"):
+        if len(args) == 0 or (len(args) == 1 and args[0] in ["list", "show"]):
             message = shopping.show_list(user_id)
         elif args[0] == "add":
             to_buy = parse_add_shopping_list(args[1:])
@@ -112,6 +115,37 @@ def shopgroup(update, context):
     except ValueError as e:
         context.bot.send_message(chat_id=update.effective_chat.id, text=str(e))
 
+# TODO: implement the calendar option
+def parse_add_calendar(args):
+    if len(args) <= 1:
+        raise ValueError()
+    today = dt.datetime.now()
+    parsed_dt, (event_ret, *_) = dtparser.parse(
+        timestr=" ".join(args), default=today, ignoretz=True, dayfirst=True, fuzzy_with_tokens=True
+    )
+    dt_ret = parsed_dt.strftime("%Y/%m/%d")
+    return event_ret.strip(), dt_ret
+
+def calendar(update, context):
+    user_id = update.message.chat.id
+    args = context.args
+
+    try:
+        if len(args) == 0 or (len(args) == 1 and args[0] == "show"):
+            message = my_calendar.show_calendar(user_id)
+        elif args[0] == "add":
+            event, date = parse_add_calendar(args[1:])
+            message = my_calendar.add(user_id, event, date)
+        elif args[0] == "remove":
+            message = my_calendar.remove(user_id, " ".join(args[1:]))
+        elif len(args) == 1 and args[0] == "clear":
+            message = my_calendar.clear(user_id)
+        else:
+            raise ValueError("Calendar error")
+        context.bot.send_message(chat_id=update.effective_chat.id, text=message)
+    except ValueError as e:
+        context.bot.send_message(chat_id=update.effective_chat.id, text=str(e))
+
 
 def parse_add_link(args):
     if len(args) != 2:
@@ -155,10 +189,18 @@ TOKEN = open("token.txt").read().strip()
 updater = Updater(token=TOKEN, use_context=True)
 dispatcher = updater.dispatcher
 
+<<<<<<< HEAD
+dispatcher.add_handler(CommandHandler('start', start))
+dispatcher.add_handler(CommandHandler('id', get_id))
+dispatcher.add_handler(CommandHandler('shop', shop, pass_args=True))
+dispatcher.add_handler(CommandHandler('calendar', calendar, pass_args=True))
+dispatcher.add_handler(CommandHandler('shopgroup', shopgroup, pass_args=True))
+=======
 dispatcher.add_handler(CommandHandler("start", start))
 dispatcher.add_handler(CommandHandler("id", get_id))
 dispatcher.add_handler(CommandHandler("shop", shop, pass_args=True))
 dispatcher.add_handler(CommandHandler("shopgroup", shopgroup, pass_args=True))
 dispatcher.add_handler(CommandHandler("link", link, pass_args=True))
+>>>>>>> a2d415a9c1cc39f44abab205755ff29fb3f77b5b
 
 updater.start_polling()
