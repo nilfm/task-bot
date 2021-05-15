@@ -1,6 +1,8 @@
 from collections import defaultdict
 from telegram.ext import Updater, CommandHandler
+import validators
 import shopping
+import links
 
 def start(update, context):
     name = update.message.chat.first_name
@@ -106,6 +108,37 @@ def shopgroup(update, context):
     except ValueError as e:
         context.bot.send_message(chat_id=update.effective_chat.id, text=str(e))
 
+def parse_add_link(args):
+    if len(args) != 2:
+        raise ValueError("Invalid command: try /link add <name> <url>")
+    name, url = args
+    if validators.url(name):
+        raise ValueError("Invalid command: try /link add <name> <url>")
+    if not validators.url(url):
+        raise ValueError(f"Invalid command: {url} is not a valid url")
+    return name, url
+
+def link(update, context):
+    user_id = update.message.chat.id
+    args = context.args
+
+    try:
+        if len(args) == 0 or (len(args) == 1 and args[0] == "list"):
+            message = links.show_list(user_id)
+        elif args[0] == "add":
+            name, url = parse_add_link(args[1:])
+            message = links.add(user_id, name, url)
+        elif len(args) == 2 and args[0] == "remove":
+            message = links.remove(user_id, args[1])
+        elif len(args) == 1 and args[0] == "clear":
+            message = links.clear(user_id)
+        elif len(args) == 1:
+            message = links.get(user_id, args[0])
+        else:
+            raise ValueError("I couldn't understand you :(")
+        context.bot.send_message(chat_id=update.effective_chat.id, text=message)
+    except ValueError as e:
+        context.bot.send_message(chat_id=update.effective_chat.id, text=str(e))
 
 # TODO: Edit distance for the remove/edit options 
 # https://pypi.org/project/editdistance/0.3.1/
@@ -119,5 +152,6 @@ dispatcher.add_handler(CommandHandler('start', start))
 dispatcher.add_handler(CommandHandler('id', get_id))
 dispatcher.add_handler(CommandHandler('shop', shop, pass_args=True))
 dispatcher.add_handler(CommandHandler('shopgroup', shopgroup, pass_args=True))
+dispatcher.add_handler(CommandHandler('link', link, pass_args=True))
 
 updater.start_polling()

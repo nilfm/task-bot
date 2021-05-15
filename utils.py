@@ -25,6 +25,8 @@ def create_user(user_id):
     create_json_dict(calendar_path)
     shopgroups_path = f"{path}/shopgroups.json"
     create_json_list(shopgroups_path)
+    links_path = f"{path}/links.json"
+    create_json_dict(links_path)
 
 def update_shopgroup_list(group_id, password):
     path_dir = "data"
