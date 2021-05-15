@@ -7,7 +7,7 @@ def show_list(user_id):
     path = f"data/{user_id}/links.json"
     with open(path, "r") as f:
         data = json.load(f)
-    lines = ["Your links:"] + [f"* {name}: {url}" for name, url in data.items()]
+    lines = ["Your links:"] + [f"\\* {name}: {url}" for name, url in data.items()]
     return "\n".join(lines)
 
 
