@@ -1,10 +1,72 @@
+from collections import defaultdict
 from telegram.ext import Updater, CommandHandler
+import shopping
 
 def start(update, context):
-    context.bot.send_message(chat_id=update.effective_chat.id, text="Hola! Soc un bot bàsic.")
+    name = update.message.chat.first_name
+    context.bot.send_message(
+        chat_id=update.effective_chat.id, 
+        text=f"Hi {name}!"
+    )
 
-def repeat(update, context):
-    context.bot.send_message(chat_id=update.effective_chat.id, text=" ".join(context.args))
+def parse_add_shopping_list(args):
+    if len(args) == 1:
+        raise ValueError()
+    items = defaultdict(int)
+    forced_word = False
+    prev_num = 1
+    if args[-1].isdigit():
+        raise ValueError()
+    for word in args[1:]:
+        if word.isdigit():
+            if forced_word:
+                raise ValueError()
+            num = int(word)
+            if num == 0:
+                raise ValueError()
+            prev_num = num
+            forced_word = True
+        else:
+            forced_word = False
+            items[word] += prev_num
+            prev_num = 1
+    return items
+
+def parse_remove_shopping_list(args):
+    if len(args) == 1:
+        raise ValueError()
+    items = set()
+    for word in args[1:]:
+        if word.isdigit():
+            raise ValueError()
+        else:
+            items.add(word)
+    return items
+
+def shop(update, context):
+    user_id = update.message.chat.id
+    args = context.args
+
+    try:
+        if len(args) == 0 or (len(args) == 1 and args[0] == "list"):
+            message = shopping.show_list(user_id)
+        elif args[0] == "add":
+            to_buy = parse_add_shopping_list(args)
+            message = shopping.add(user_id, to_buy)
+        elif args[0] == "remove":
+            to_remove = parse_remove_shopping_list(args)
+            message = shopping.remove(user_id, to_remove)
+        elif len(args) == 1 and args[0] == "clean":
+            message = shopping.clean(user_id)
+        else:
+            raise ValueError()
+        context.bot.send_message(chat_id=update.effective_chat.id, text=message)
+    except ValueError:
+        context.bot.send_message(chat_id=update.effective_chat.id, text="I couldn't understand you :(")
+
+
+# TODO: Edit distance for the remove/edit options 
+# https://pypi.org/project/editdistance/0.3.1/
 
 TOKEN = open('token.txt').read().strip()
 
@@ -12,6 +74,6 @@ updater = Updater(token=TOKEN, use_context=True)
 dispatcher = updater.dispatcher
 
 dispatcher.add_handler(CommandHandler('start', start))
-dispatcher.add_handler(CommandHandler('repeat', repeat, pass_args=True))
+dispatcher.add_handler(CommandHandler('shop', shop, pass_args=True))
 
 updater.start_polling()
