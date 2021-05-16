@@ -15,7 +15,7 @@ import io
 
 def start(update, context):
     name = update.message.chat.first_name
-    context.bot.send_message(chat_id=update.effective_chat.id, text=f"Hi {name}!")
+    context.bot.send_message(chat_id=update.effective_chat.id, text=f"Hi {name}! Try /help for an explanation of all my commands.")
 
 
 def get_id(update, context):
