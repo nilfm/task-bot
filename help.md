@@ -5,7 +5,7 @@
 /help 
     - Display this information
 /id 
-    - Get your id to use it on the website
+    - Get your Telegram id
 /shop
     [show | list]
     add [quantity1 (default:1)] item1 [quantity2 (default:1)] item2 ... 
@@ -33,4 +33,6 @@
     add <amount1> <activity_name1> [<amount2> <activity_name2> ...]
     remove <activity_name>
     clear
+
+Send me a photo of a document and I will enhance it for better readability! 
 ```
