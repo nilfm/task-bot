@@ -1,11 +1,9 @@
 ```
 *List of commands:*
 /start
-    - The bot says Hello!
+    - I say Hello!
 /help 
     - Display this information
-/id 
-    - Get your Telegram id
 /shop
     [show | list]
     add [quantity1 (default:1)] item1 [quantity2 (default:1)] item2 ... 

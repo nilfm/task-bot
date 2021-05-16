@@ -18,11 +18,6 @@ def start(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text=f"Hi {name}! Try /help for an explanation of all my commands.")
 
 
-def get_id(update, context):
-    user_id = update.message.chat.id
-    context.bot.send_message(chat_id=update.effective_chat.id, text=f"{user_id}")
-
-
 def parse_add_shopping_list(args):
     if len(args) == 0:
         raise ValueError("Invalid command: nothing to buy.")
@@ -281,7 +276,6 @@ updater = Updater(token=TOKEN, use_context=True)
 dispatcher = updater.dispatcher
 
 dispatcher.add_handler(CommandHandler("start", start))
-dispatcher.add_handler(CommandHandler("id", get_id))
 dispatcher.add_handler(CommandHandler("shop", shop, pass_args=True))
 dispatcher.add_handler(CommandHandler("shopgroup", shopgroup, pass_args=True))
 dispatcher.add_handler(CommandHandler("calendar", calendar, pass_args=True))
