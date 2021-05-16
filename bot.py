@@ -8,6 +8,7 @@ import datetime as dt
 import dateutil.parser as dtparser
 import links
 import workouts
+import enhance
 import PIL.Image as Image
 import io
 
@@ -268,8 +269,11 @@ def my_help(update, context):
 def handle_photo(update, context):
     file = update.message.photo[-1].get_file()
     bytearray = file.download_as_bytearray()
-    image = Image.open(io.BytesIO(bytearray))
-    image.show()
+    image_stream = io.BytesIO(bytearray)
+    image_stream.seek(0)
+    context.bot.send_photo(
+        chat_id=update.effective_chat.id, photo=enhance.process(image_stream)
+    )
 
 
 TOKEN = open("token.txt").read().strip()
