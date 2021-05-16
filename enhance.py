@@ -2,7 +2,6 @@ from skimage.filters import threshold_local
 import numpy as np
 import cv2
 import math
-from PIL import Image
 import io
 
 mu = 200

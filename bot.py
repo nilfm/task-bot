@@ -163,7 +163,6 @@ def calendar(update, context):
         context.bot.send_message(
             chat_id=update.effective_chat.id,
             text=message,
-            parse_mode=telegram.ParseMode.MARKDOWN,
         )
     except ValueError as e:
         context.bot.send_message(chat_id=update.effective_chat.id, text=str(e))
